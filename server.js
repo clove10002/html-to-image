@@ -13,10 +13,11 @@ app.post('/html-to-image', async (req, res) => {
   try {
     const html = req.body;
 
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-    });
+const browser = await puppeteer.launch({
+  executablePath: '/usr/bin/chromium',
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  headless: true,
+});
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
