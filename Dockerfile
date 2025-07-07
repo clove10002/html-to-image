@@ -1,7 +1,8 @@
 FROM node:18-slim
 
-# Install system dependencies required by Chromium
+# Install dependencies required by Chromium
 RUN apt-get update && apt-get install -y \
+  chromium \
   fonts-liberation \
   libasound2 \
   libatk-bridge2.0-0 \
@@ -24,11 +25,11 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy files
+# Copy all files
 COPY . .
 
-# Install dependencies (this will download Chromium too)
+# Install Node dependencies (faster: puppeteer-core only)
 RUN npm install
 
-# Run the app
+# Start app
 CMD ["npm", "start"]
