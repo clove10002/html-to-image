@@ -5,10 +5,6 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.text({ type: '*/*', limit: '5mb' }));
 
-function getChromePath() {
-  return '/usr/bin/chromium-browser'; // ✅ This works on Render
-}
-
 app.get('/', (req, res) => {
   res.send('✅ HTML to Image API is running. POST to /html-to-image');
 });
@@ -16,9 +12,10 @@ app.get('/', (req, res) => {
 app.post('/html-to-image', async (req, res) => {
   try {
     const html = req.body;
+    const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
 
     const browser = await puppeteer.launch({
-      executablePath: getChromePath(),
+      executablePath: chromePath,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
       headless: true,
     });
