@@ -25,11 +25,11 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy all files
+# Copy app files
 COPY . .
 
-# Install Node dependencies (faster: puppeteer-core only)
+# Install Node.js dependencies
 RUN npm install
 
-# Start app
+# Start server
 CMD ["npm", "start"]
