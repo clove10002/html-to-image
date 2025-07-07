@@ -1,24 +1,22 @@
 const express = require('express');
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 const bodyParser = require('body-parser');
 
 const app = express();
 app.use(bodyParser.text({ type: '*/*', limit: '5mb' }));
 
 app.get('/', (req, res) => {
-  res.send('✅ HTML to Image API is running. POST to /html-to-image');
+  res.send('✅ HTML to Image API is running. POST HTML to /html-to-image');
 });
 
 app.post('/html-to-image', async (req, res) => {
   try {
     const html = req.body;
-const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
 
-const browser = await puppeteer.launch({
-  executablePath: chromePath,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  headless: true,
-});
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true,
+    });
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -37,5 +35,5 @@ const browser = await puppeteer.launch({
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
