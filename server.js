@@ -1,16 +1,27 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const bodyParser = require('body-parser');
+const { execSync } = require('child_process');
 
 const app = express();
 app.use(bodyParser.text({ type: '*/*', limit: '5mb' }));
+
+// Find Chrome path
+function getChromePath() {
+  try {
+    return execSync('which chromium-browser').toString().trim();
+  } catch {
+    return '/usr/bin/google-chrome'; // fallback
+  }
+}
 
 app.post('/html-to-image', async (req, res) => {
   const html = req.body;
 
   const browser = await puppeteer.launch({
+    executablePath: getChromePath(),
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    headless: 'new',
+    headless: true,
   });
 
   const page = await browser.newPage();
