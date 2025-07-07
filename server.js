@@ -12,13 +12,13 @@ app.get('/', (req, res) => {
 app.post('/html-to-image', async (req, res) => {
   try {
     const html = req.body;
-    const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
+const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
 
-    const browser = await puppeteer.launch({
-      executablePath: chromePath,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-    });
+const browser = await puppeteer.launch({
+  executablePath: chromePath,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  headless: true,
+});
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
