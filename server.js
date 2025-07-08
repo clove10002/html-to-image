@@ -2,6 +2,7 @@ const express = require('express');
 const puppeteer = require('puppeteer-core');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
+const os = require('os');
 
 const app = express();
 const chromiumPath = '/usr/bin/chromium';
@@ -26,9 +27,9 @@ app.post('/html-to-image', async (req, res) => {
 
     browser = await puppeteer.launch({
       executablePath: chromiumPath,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
       headless: true,
-    });
+    });   
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -42,14 +43,33 @@ app.post('/html-to-image', async (req, res) => {
     console.error('❌ Error:', err);
     res.status(500).send(`Error: ${err.message}`);
   } finally {
-    if (browser) {
-      try {
-        await browser.close();
-      } catch (e) {
-        console.warn('⚠️ Failed to close browser:', e);
-      }
+    if (browser && browser.process() != null) {
+      browser.close().catch((err) => console.warn("⚠️ Browser close failed:", err));
     }
   }
+});
+
+app.get('/status', (req, res) => {
+  const memoryUsage = process.memoryUsage();
+  const rss = (memoryUsage.rss / 1024 / 1024).toFixed(2); // Resident Set Size
+  const heapUsed = (memoryUsage.heapUsed / 1024 / 1024).toFixed(2);
+  const heapTotal = (memoryUsage.heapTotal / 1024 / 1024).toFixed(2);
+  const external = (memoryUsage.external / 1024 / 1024).toFixed(2);
+  const totalMemory = (os.totalmem() / 1024 / 1024).toFixed(2);
+  const freeMemory = (os.freemem() / 1024 / 1024).toFixed(2);
+
+  res.json({
+    status: 'ok',
+    memory: {
+      rss: `${rss} MB`,
+      heapUsed: `${heapUsed} MB`,
+      heapTotal: `${heapTotal} MB`,
+      external: `${external} MB`,
+      totalSystemMemory: `${totalMemory} MB`,
+      freeSystemMemory: `${freeMemory} MB`,
+    },
+    uptime: `${(process.uptime()).toFixed(1)}s`,
+  });
 });
 
 const PORT = process.env.PORT || 3000;
